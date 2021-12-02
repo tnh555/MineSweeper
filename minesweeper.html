@@ -215,6 +215,11 @@
                 flagBtn.removeEventListener("click", toggleFlag);
                 flagIsTrue = false;
                 body.removeEventListener("click", markDiv)
+                for (i = 1; i < coverCells.length; i++) {
+                    if (gridCells[i].classList.contains("mine") && body.contains(coverCells[i])) {
+                        body.replaceChild(gridCells[i], coverCells[i]);
+                    }
+                }
                 setTimeout(() => window.alert("Congratulations! You won!"), 50);
             }
         }
@@ -371,6 +376,11 @@
                     flagBtn.removeEventListener("click", toggleFlag);
                     flagIsTrue = false;
                     body.removeEventListener("click", markDiv)
+                    for (i = 1; i < coverCells.length; i++) {
+                        if (gridCells[i].classList.contains("mine") && body.contains(coverCells[i])) {
+                            body.replaceChild(gridCells[i], coverCells[i]);
+                        }
+                    }
                 }
             }
 
