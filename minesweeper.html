@@ -57,22 +57,28 @@
             height: 3em;
             border: .25em solid black;
             box-shadow: rgb(126, 126, 126) 0px 0px 2px;
+            border-radius: 5px;
+        }
+
+        button:nth-child(1) {
+            width: 5em;
+            height: 3.5em;
         }
 
         button:nth-child(2) {
-            top: 6em;
+            top: 8em;
         }
 
         button:nth-child(3) {
-            top: 10em;
+            top: 12em;
         }
 
         button:nth-child(4) {
-            top: 14em;
+            top: 16em;
         }
 
         button:nth-child(5) {
-            top: 18em;
+            top: 20em;
         }
 
         button:hover {
@@ -174,6 +180,7 @@
             flagBtn.addEventListener("click", toggleFlag);
             flagIsTrue = false;
             flagBtn.style.borderColor = "black";
+            flagBtn.style.cursor = "pointer"
             createGame()
 
         }
@@ -204,26 +211,18 @@
 
         //Wins the game
         function win() {
-            let gridcellsInBody = 0;
-            for (i = 1; i <= gridCells.length; i++) {
-                if (body.contains(gridCells[i])) {
-                    gridcellsInBody++
+            body.removeEventListener("click", hideCover);
+            flagBtn.removeEventListener("click", toggleFlag);
+            flagIsTrue = false;
+            body.removeEventListener("click", markDiv)
+            flagBtn.style.cursor = "initial"
+            for (i = 1; i < coverCells.length; i++) {
+                if (gridCells[i].classList.contains("mine") && body.contains(coverCells[i])) {
+                    body.replaceChild(gridCells[i], coverCells[i]);
                 }
             }
-            if (gridcellsInBody >= (gridCells.length - 1) - mineNumbers.length) {
-                body.removeEventListener("click", hideCover);
-                flagBtn.removeEventListener("click", toggleFlag);
-                flagIsTrue = false;
-                body.removeEventListener("click", markDiv)
-                for (i = 1; i < coverCells.length; i++) {
-                    if (gridCells[i].classList.contains("mine") && body.contains(coverCells[i])) {
-                        body.replaceChild(gridCells[i], coverCells[i]);
-                    }
-                }
-                setTimeout(() => window.alert("Congratulations! You won!"), 50);
-            }
+            setTimeout(() => window.alert("Congratulations! You won!"), 50);
         }
-
 
         createGame()
 
@@ -231,7 +230,7 @@
             makeGrid()
             //Tells where the mines should be placed
             for (i = 0; i < minesAmount; i++) {
-                let mine = (Math.floor(Math.random() * gridAmount));
+                let mine = (Math.floor(Math.random() * (gridAmount - 1) + 1));
                 if (mineNumbers.includes(mine)) {
                     i -= 1;
                 }
@@ -357,6 +356,8 @@
                     gridCells[i].innerText = 8
                     gridCells[i].style.color = "gray"
                 }
+                else {
+                }
             }
         }
 
@@ -364,10 +365,30 @@
 
         //Reveals the divs from the cover on click
         function hideCover(e) {
+            let coverCellsInBody = 0;
             let coverIndex = coverCells.indexOf(e.target);
+            let indexOfCoverIndex = coverCells.indexOf(coverCells[coverIndex]);
             if (e.target.classList.contains("cover")) {
-                body.replaceChild(gridCells[coverIndex], e.target);
-                win()
+                //If the first div you press on is not empty, restart until it is.
+                for (i = 1; i < coverCells.length; i++) {
+                    if (body.contains(coverCells[i])) {
+                        coverCellsInBody++;
+                    }
+                }
+                if (coverCellsInBody === coverCells.length - 1) {
+                    while (gridCells[coverIndex].innerText !== "") {
+                        restartGame();
+                    }
+                    body.replaceChild(gridCells[indexOfCoverIndex], coverCells[indexOfCoverIndex])
+                }
+                else if (coverCellsInBody === mineNumbers.length + 1) {
+                    body.replaceChild(gridCells[coverIndex], e.target);
+                    console.log(coverCellsInBody)
+                    win();
+                }
+                else {
+                    body.replaceChild(gridCells[coverIndex], e.target);
+                }
 
                 //Ends the game if you click on a mine
                 if (gridCells[coverIndex].classList.contains("mine")) {
@@ -376,6 +397,7 @@
                     flagBtn.removeEventListener("click", toggleFlag);
                     flagIsTrue = false;
                     body.removeEventListener("click", markDiv)
+                    flagBtn.style.cursor = "initial"
                     for (i = 1; i < coverCells.length; i++) {
                         if (gridCells[i].classList.contains("mine") && body.contains(coverCells[i])) {
                             body.replaceChild(gridCells[i], coverCells[i]);
@@ -388,7 +410,6 @@
             revealEmptyDivs();
 
         }
-
 
         //Clears the earea around an empty div
         function revealEmptyDivs() {
